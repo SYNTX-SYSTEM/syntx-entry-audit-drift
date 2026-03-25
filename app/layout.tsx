@@ -1,27 +1,19 @@
-import "./globals.css";
-import LogoAnchor from "@/components/LogoAnchor";
-import LanguageSwitch from "@/components/LanguageSwitch";
-import { FieldProvider } from "@/app/system/FieldProvider";
+import type { Metadata } from "next"
+import "@/styles/globals.css"
 
-export const metadata = {
+export const metadata: Metadata = {
   title: "SYNTX",
-  description: "Semantic Entry Layer"
-};
+  description: "Symbiotische Eingabemembran",
+}
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode;
+  children: React.ReactNode
 }) {
   return (
     <html lang="en">
-      <body>
-        <LogoAnchor />
-        <LanguageSwitch />
-        <FieldProvider>
-          {children}
-        </FieldProvider>
-      </body>
+      <body>{children}</body>
     </html>
-  );
+  )
 }

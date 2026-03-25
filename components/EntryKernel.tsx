@@ -1,0 +1,135 @@
+"use client"
+import { useState, useEffect } from "react"
+import { submitEntry } from "@/lib/api"
+import { perturb, singularity, onAttractorChange } from "@/lib/attractorSystem"
+
+export default function EntryKernel() {
+  const [email, setEmail] = useState("")
+  const [url, setUrl] = useState("")
+  const [file, setFile] = useState<File | null>(null)
+  const [language, setLanguage] = useState("EN")
+  const [loading, setLoading] = useState(false)
+  const [breathIntensity, setBreathIntensity] = useState(0.4)
+  const [breathPhase, setBreathPhase] = useState(0)
+
+  useEffect(() => {
+    let st: any
+    onAttractorChange((s) => { st = s })
+    const iv = setInterval(() => {
+      if (!st) return
+      setBreathIntensity(0.4 + st.energy * 0.5)
+      setBreathPhase(prev => prev + (0.0006 + st.energy * 0.001))
+    }, 50)
+    return () => clearInterval(iv)
+  }, [])
+
+  useEffect(() => {
+    const v = Number(localStorage.getItem("syntx_visits") || 0)
+    localStorage.setItem("syntx_visits", String(v + 1))
+  }, [])
+
+  async function handleSubmit() {
+    if (!email) return
+    if (!url && !file) {
+      perturb(0.3)
+      return
+    }
+
+    setLoading(true)
+    singularity()
+
+    const fd = new FormData()
+    fd.append("email", email)
+    fd.append("language", language)
+    if (file) fd.append("file", file)
+    else if (url) fd.append("url", url)
+
+    try {
+      await submitEntry(fd)
+      setEmail("")
+      setUrl("")
+      setFile(null)
+    } catch {
+      setLoading(false)
+    } finally {
+      setTimeout(() => {
+        perturb(-0.8)
+        setLoading(false)
+      }, 600)
+    }
+  }
+
+  const breathWave = Math.sin(breathPhase) * 0.5 + 0.5
+  const glowSize = 55 + breathWave * 30 + Math.min(breathIntensity * 45, 55)
+  const glowOpacity = 0.22 + Math.min(breathIntensity * 0.35, 0.4) + breathWave * 0.14
+  
+  const bgGlowOpacity = 0.14 + Math.min(breathIntensity * 0.2, 0.25) + breathWave * 0.12
+
+  const containerGlowStyle = {
+    boxShadow: `0 0 ${glowSize}px rgba(0, 217, 255, ${glowOpacity})`,
+    transition: 'box-shadow 1500ms ease-out'
+  }
+
+  const backgroundGlowStyle = {
+    background: `radial-gradient(ellipse at center, rgba(0, 217, 255, ${bgGlowOpacity}) 0%, transparent 70%)`,
+    transition: 'background 1500ms ease-out'
+  }
+
+  return (
+    <div 
+      className="w-full max-w-[520px] relative z-10 p-6 rounded-lg"
+      style={containerGlowStyle}
+    >
+      <div 
+        className="absolute inset-0 rounded-lg -z-10"
+        style={backgroundGlowStyle}
+      />
+      <div className="space-y-2 relative z-10">
+        <input
+          type="email"
+          placeholder="your@email.com"
+          value={email}
+          onChange={e => {
+            setEmail(e.target.value)
+            perturb(0.05 * e.target.value.length)
+          }}
+          onFocus={() => perturb(0.3)}
+          onBlur={() => perturb(-0.02)}
+          className="w-full h-11 bg-panel border border-white/10 rounded-md px-4 text-sm focus:border-accent outline-none"
+        />
+        <input
+          type="text"
+          placeholder="paste url or drop pdf"
+          value={url}
+          onChange={e => {
+            setUrl(e.target.value)
+            if (file) setFile(null)
+          }}
+          onFocus={() => perturb(0.1)}
+          onBlur={() => perturb(-0.02)}
+          className="w-full h-11 bg-panel border border-white/10 rounded-md px-4 text-sm focus:border-accent outline-none"
+        />
+        <div className="flex gap-2">
+          <select
+            value={language}
+            onChange={e => {
+              setLanguage(e.target.value)
+              perturb(0.1)
+            }}
+            className="h-11 bg-panel border border-white/10 rounded-md px-4 text-sm focus:border-accent outline-none"
+          >
+            <option value="EN">EN</option>
+            <option value="DE">DE</option>
+          </select>
+          <button
+            onClick={handleSubmit}
+            disabled={loading}
+            className="flex-1 h-11 bg-panel border border-white/10 rounded-md px-4 text-sm hover:border-accent disabled:opacity-50"
+          >
+            {loading ? "Entering system..." : "Analyze"}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}

@@ -1,0 +1,18 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  transition: transform 200ms ease,
+              opacity 300ms ease;
+}
+
+@keyframes breathe {
+  0% { opacity: 0.98; }
+  50% { opacity: 1; }
+  100% { opacity: 0.98; }
+}
+
+.animate-breathe {
+  animation: breathe 6s ease-in-out infinite;
+}
