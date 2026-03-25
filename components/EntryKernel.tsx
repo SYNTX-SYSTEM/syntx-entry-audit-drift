@@ -75,6 +75,26 @@ export default function EntryKernel() {
     transition: 'background 1500ms ease-out'
   }
 
+  const fieldGradientOpacity = 0.3 + breathIntensity * 0.4
+  const fieldGlowSize = 8 + breathWave * 4 + breathIntensity * 8
+
+  const inputStyle = {
+    background: `linear-gradient(135deg, 
+      rgba(17, 24, 39, 0.7) 0%, 
+      rgba(17, 24, 39, 0.5) 100%)`,
+    backdropFilter: 'blur(12px)',
+    borderImage: `linear-gradient(135deg, 
+      rgba(0, 217, 255, ${fieldGradientOpacity * 0.4}), 
+      rgba(0, 217, 255, ${fieldGradientOpacity * 0.1}), 
+      rgba(0, 217, 255, ${fieldGradientOpacity * 0.4})) 1`,
+    boxShadow: `
+      0 0 ${fieldGlowSize}px rgba(0, 217, 255, ${glowOpacity * 0.3}),
+      inset 0 1px 0 rgba(255, 255, 255, 0.1),
+      inset 0 -1px 0 rgba(0, 217, 255, 0.1)
+    `,
+    transition: 'all 1200ms cubic-bezier(0.4, 0, 0.2, 1)'
+  }
+
   return (
     <div 
       className="w-full max-w-[520px] relative z-10 p-6 rounded-lg"
@@ -95,7 +115,8 @@ export default function EntryKernel() {
           }}
           onFocus={() => perturb(0.3)}
           onBlur={() => perturb(-0.02)}
-          className="w-full h-11 bg-panel border border-white/10 rounded-md px-4 text-sm focus:border-accent outline-none"
+          style={inputStyle}
+          className="w-full h-11 border border-transparent rounded-md px-4 text-sm text-textPrimary placeholder:text-muted/50 outline-none"
         />
         <input
           type="text"
@@ -107,7 +128,8 @@ export default function EntryKernel() {
           }}
           onFocus={() => perturb(0.1)}
           onBlur={() => perturb(-0.02)}
-          className="w-full h-11 bg-panel border border-white/10 rounded-md px-4 text-sm focus:border-accent outline-none"
+          style={inputStyle}
+          className="w-full h-11 border border-transparent rounded-md px-4 text-sm text-textPrimary placeholder:text-muted/50 outline-none"
         />
         <div className="flex gap-2">
           <select
@@ -116,15 +138,17 @@ export default function EntryKernel() {
               setLanguage(e.target.value)
               perturb(0.1)
             }}
-            className="h-11 bg-panel border border-white/10 rounded-md px-4 text-sm focus:border-accent outline-none"
+            style={inputStyle}
+            className="h-11 border border-transparent rounded-md px-4 text-sm text-textPrimary outline-none cursor-pointer"
           >
-            <option value="EN">EN</option>
-            <option value="DE">DE</option>
+            <option value="EN" className="bg-panel">EN</option>
+            <option value="DE" className="bg-panel">DE</option>
           </select>
           <button
             onClick={handleSubmit}
             disabled={loading}
-            className="flex-1 h-11 bg-panel border border-white/10 rounded-md px-4 text-sm hover:border-accent disabled:opacity-50"
+            style={inputStyle}
+            className="flex-1 h-11 border border-transparent rounded-md px-4 text-sm text-textPrimary hover:brightness-110 disabled:opacity-50 transition-all cursor-pointer"
           >
             {loading ? "Entering system..." : "Analyze"}
           </button>
