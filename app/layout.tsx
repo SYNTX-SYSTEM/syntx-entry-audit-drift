@@ -1,6 +1,7 @@
 import "./globals.css";
 import LogoAnchor from "@/components/LogoAnchor";
 import LanguageSwitch from "@/components/LanguageSwitch";
+import { FieldProvider } from "@/app/system/FieldProvider";
 
 export const metadata = {
   title: "SYNTX",
@@ -15,9 +16,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
-        <LogoAnchor />
-        <LanguageSwitch />
-        {children}
+        <FieldProvider>
+          <LogoAnchor />
+          <LanguageSwitch />
+          {children}
+        </FieldProvider>
       </body>
     </html>
   );
