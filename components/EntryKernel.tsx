@@ -4,6 +4,7 @@ import { submitEntry } from "@/lib/api"
 import { perturb, singularity, onAttractorChange } from "@/lib/attractorSystem"
 import { isValidEmail, hasValidSource } from "@/lib/validation"
 import { determineLogoState } from "@/lib/colorFilters"
+import { LANGUAGES } from "@/lib/languages"
 
 export default function EntryKernel() {
   const [email, setEmail] = useState("")
@@ -31,14 +32,12 @@ export default function EntryKernel() {
     localStorage.setItem("syntx_visits", String(v + 1))
   }, [])
 
-  // Update logo state based on inputs
   useEffect(() => {
     const emailValid = isValidEmail(email)
     const hasSource = hasValidSource(url, file)
     const newState = determineLogoState(email, emailValid, hasSource)
     setLogoState(newState)
     
-    // Broadcast logo state via custom event
     window.dispatchEvent(new CustomEvent('logoStateChange', { 
       detail: { state: newState } 
     }))
@@ -170,11 +169,17 @@ export default function EntryKernel() {
             setLanguage(e.target.value)
             perturb(0.1)
           }}
-          style={inputStyle}
-          className="w-full h-11 border border-transparent rounded-md px-4 text-sm text-textPrimary outline-none cursor-pointer"
+          style={{
+            ...inputStyle,
+            letterSpacing: '0.15em'
+          }}
+          className="w-full h-14 border border-transparent rounded-md px-4 py-3 text-base text-textPrimary outline-none cursor-pointer font-light"
         >
-          <option value="EN" className="bg-panel">EN</option>
-          <option value="DE" className="bg-panel">DE</option>
+          {LANGUAGES.map(lang => (
+            <option key={lang.code} value={lang.code} className="bg-panel py-2">
+              {lang.flag}    {lang.native}
+            </option>
+          ))}
         </select>
         <button
           onClick={handleSubmit}
