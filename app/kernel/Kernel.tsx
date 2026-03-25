@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { useFieldClock } from "@/app/system/FieldProvider";
+import { KernelPhysics } from "./KernelPhysics";
 import EmailRow from "./EmailRow";
 import SourceRow from "./SourceRow";
 import ActionRow from "./ActionRow";
@@ -9,20 +10,17 @@ import ActionRow from "./ActionRow";
 export default function Kernel() {
   const kernelRef = useRef<HTMLDivElement>(null);
   const clock = useFieldClock();
+  const physics = useRef(new KernelPhysics());
 
   useEffect(() => {
-    if (!kernelRef.current) return;
-
-    const element = kernelRef.current;
-
     clock.subscribe((field) => {
-      const intensity = field.baseIntensity + field.interactionWeight + field.absorptionSpike;
-      const mass = 1 + intensity * 0.4;
-      const compression = field.thresholdCompression;
+      const state = physics.current.update(field);
 
-      element.style.transform = `scale(${1 + mass * 0.02})`;
-      element.style.boxShadow = `0 0 ${40 * mass}px rgba(0,217,255,${intensity})`;
-      element.style.filter = `brightness(${1 - compression * 0.2})`;
+      if (!kernelRef.current) return;
+
+      kernelRef.current.style.transform = `scale(${1 + state.mass * 0.02})`;
+      kernelRef.current.style.boxShadow = `0 0 ${60 * state.mass}px rgba(0,217,255,0.2)`;
+      kernelRef.current.style.filter = `brightness(${1 - state.compression * 0.2})`;
     });
   }, [clock]);
 

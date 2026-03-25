@@ -4,12 +4,14 @@ export default function LogoAnchor() {
   return (
     <div
       style={{
-        position: "absolute",
+        position: "fixed",
         top: "14%",
-        width: "100%",
+        left: 0,
+        right: 0,
         display: "flex",
         justifyContent: "center",
-        pointerEvents: "none"
+        pointerEvents: "none",
+        zIndex: 100
       }}
     >
       <Image

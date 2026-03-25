@@ -16,9 +16,9 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body>
+        <LogoAnchor />
+        <LanguageSwitch />
         <FieldProvider>
-          <LogoAnchor />
-          <LanguageSwitch />
           {children}
         </FieldProvider>
       </body>

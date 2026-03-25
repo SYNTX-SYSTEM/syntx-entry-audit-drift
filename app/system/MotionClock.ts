@@ -13,6 +13,7 @@ export class MotionClock {
   private rawTime = 0;
   private subscribers: Subscriber[] = [];
   private field: FieldVector;
+  private running = false;
 
   constructor(initialField: FieldVector) {
     this.field = initialField;
@@ -27,6 +28,9 @@ export class MotionClock {
   }
 
   start() {
+    if (this.running) return;
+    this.running = true;
+
     const loop = () => {
       this.rawTime += 0.016;
 
@@ -44,5 +48,9 @@ export class MotionClock {
     };
 
     requestAnimationFrame(loop);
+  }
+
+  stop() {
+    this.running = false;
   }
 }
