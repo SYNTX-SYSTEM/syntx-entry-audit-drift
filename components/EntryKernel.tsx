@@ -95,6 +95,23 @@ export default function EntryKernel() {
     transition: 'all 1200ms cubic-bezier(0.4, 0, 0.2, 1)'
   }
 
+  const buttonStyle = {
+    background: `linear-gradient(135deg, 
+      rgba(0, 217, 255, 0.15) 0%, 
+      rgba(0, 217, 255, 0.05) 100%)`,
+    backdropFilter: 'blur(12px)',
+    borderImage: `linear-gradient(135deg, 
+      rgba(0, 217, 255, ${fieldGradientOpacity * 0.6}), 
+      rgba(0, 217, 255, ${fieldGradientOpacity * 0.3}), 
+      rgba(0, 217, 255, ${fieldGradientOpacity * 0.6})) 1`,
+    boxShadow: `
+      0 0 ${fieldGlowSize * 1.5}px rgba(0, 217, 255, ${glowOpacity * 0.5}),
+      inset 0 1px 0 rgba(0, 217, 255, 0.3),
+      inset 0 -1px 0 rgba(0, 217, 255, 0.2)
+    `,
+    transition: 'all 1200ms cubic-bezier(0.4, 0, 0.2, 1)'
+  }
+
   return (
     <div 
       className="w-full max-w-[520px] relative z-10 p-6 rounded-lg"
@@ -104,7 +121,7 @@ export default function EntryKernel() {
         className="absolute inset-0 rounded-lg -z-10"
         style={backgroundGlowStyle}
       />
-      <div className="space-y-2 relative z-10">
+      <div className="space-y-3 relative z-10">
         <input
           type="email"
           placeholder="your@email.com"
@@ -131,28 +148,26 @@ export default function EntryKernel() {
           style={inputStyle}
           className="w-full h-11 border border-transparent rounded-md px-4 text-sm text-textPrimary placeholder:text-muted/50 outline-none"
         />
-        <div className="flex gap-2">
-          <select
-            value={language}
-            onChange={e => {
-              setLanguage(e.target.value)
-              perturb(0.1)
-            }}
-            style={inputStyle}
-            className="h-11 border border-transparent rounded-md px-4 text-sm text-textPrimary outline-none cursor-pointer"
-          >
-            <option value="EN" className="bg-panel">EN</option>
-            <option value="DE" className="bg-panel">DE</option>
-          </select>
-          <button
-            onClick={handleSubmit}
-            disabled={loading}
-            style={inputStyle}
-            className="flex-1 h-11 border border-transparent rounded-md px-4 text-sm text-textPrimary hover:brightness-110 disabled:opacity-50 transition-all cursor-pointer"
-          >
-            {loading ? "Entering system..." : "Analyze"}
-          </button>
-        </div>
+        <select
+          value={language}
+          onChange={e => {
+            setLanguage(e.target.value)
+            perturb(0.1)
+          }}
+          style={inputStyle}
+          className="w-full h-11 border border-transparent rounded-md px-4 text-sm text-textPrimary outline-none cursor-pointer"
+        >
+          <option value="EN" className="bg-panel">EN</option>
+          <option value="DE" className="bg-panel">DE</option>
+        </select>
+        <button
+          onClick={handleSubmit}
+          disabled={loading}
+          style={buttonStyle}
+          className="w-full h-12 border border-transparent rounded-md px-4 text-sm font-medium text-textPrimary hover:brightness-110 disabled:opacity-50 transition-all cursor-pointer uppercase tracking-wider"
+        >
+          {loading ? "→ Entering system..." : "→ Analyze"}
+        </button>
       </div>
     </div>
   )
