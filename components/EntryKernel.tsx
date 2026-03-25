@@ -2,6 +2,8 @@
 import { useState, useEffect } from "react"
 import { submitEntry } from "@/lib/api"
 import { perturb, singularity, onAttractorChange } from "@/lib/attractorSystem"
+import { isValidEmail, hasValidSource } from "@/lib/validation"
+import { determineLogoState } from "@/lib/colorFilters"
 
 export default function EntryKernel() {
   const [email, setEmail] = useState("")
@@ -11,6 +13,7 @@ export default function EntryKernel() {
   const [loading, setLoading] = useState(false)
   const [breathIntensity, setBreathIntensity] = useState(0.4)
   const [breathPhase, setBreathPhase] = useState(0)
+  const [logoState, setLogoState] = useState<'white' | 'red' | 'green'>('white')
 
   useEffect(() => {
     let st: any
@@ -27,6 +30,19 @@ export default function EntryKernel() {
     const v = Number(localStorage.getItem("syntx_visits") || 0)
     localStorage.setItem("syntx_visits", String(v + 1))
   }, [])
+
+  // Update logo state based on inputs
+  useEffect(() => {
+    const emailValid = isValidEmail(email)
+    const hasSource = hasValidSource(url, file)
+    const newState = determineLogoState(email, emailValid, hasSource)
+    setLogoState(newState)
+    
+    // Broadcast logo state via custom event
+    window.dispatchEvent(new CustomEvent('logoStateChange', { 
+      detail: { state: newState } 
+    }))
+  }, [email, url, file])
 
   async function handleSubmit() {
     if (!email) return
