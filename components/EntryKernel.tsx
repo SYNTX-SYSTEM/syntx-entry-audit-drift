@@ -5,6 +5,7 @@ import { perturb, singularity, onAttractorChange } from "@/lib/attractorSystem"
 import { isValidEmail, hasValidSource } from "@/lib/validation"
 import { determineLogoState } from "@/lib/colorFilters"
 import { LANGUAGES } from "@/lib/languages"
+import EnergyBar from "./EnergyBar"
 
 export default function EntryKernel() {
   const [email, setEmail] = useState("")
@@ -110,22 +111,8 @@ export default function EntryKernel() {
     transition: 'all 1200ms cubic-bezier(0.4, 0, 0.2, 1)'
   }
 
-  const buttonStyle = {
-    background: `linear-gradient(135deg, 
-      rgba(0, 217, 255, 0.15) 0%, 
-      rgba(0, 217, 255, 0.05) 100%)`,
-    backdropFilter: 'blur(12px)',
-    borderImage: `linear-gradient(135deg, 
-      rgba(0, 217, 255, ${fieldGradientOpacity * 0.6}), 
-      rgba(0, 217, 255, ${fieldGradientOpacity * 0.3}), 
-      rgba(0, 217, 255, ${fieldGradientOpacity * 0.6})) 1`,
-    boxShadow: `
-      0 0 ${fieldGlowSize * 1.5}px rgba(0, 217, 255, ${glowOpacity * 0.5}),
-      inset 0 1px 0 rgba(0, 217, 255, 0.3),
-      inset 0 -1px 0 rgba(0, 217, 255, 0.2)
-    `,
-    transition: 'all 1200ms cubic-bezier(0.4, 0, 0.2, 1)'
-  }
+  const emailValid = isValidEmail(email)
+  const sourceValid = hasValidSource(url, file)
 
   return (
     <div 
@@ -139,7 +126,7 @@ export default function EntryKernel() {
       <div className="space-y-3 relative z-10">
         <input
           type="email"
-          placeholder="your@email.com"
+          placeholder="• • • @ • • • . • •"
           value={email}
           onChange={e => {
             setEmail(e.target.value)
@@ -148,11 +135,11 @@ export default function EntryKernel() {
           onFocus={() => perturb(0.3)}
           onBlur={() => perturb(-0.02)}
           style={inputStyle}
-          className="w-full h-11 border border-transparent rounded-md px-4 text-sm text-textPrimary placeholder:text-muted/50 outline-none"
+          className="w-full h-11 border border-transparent rounded-md px-4 text-sm text-textPrimary placeholder:text-muted/30 placeholder:tracking-[0.3em] outline-none"
         />
         <input
           type="text"
-          placeholder="paste url or drop pdf"
+          placeholder="// • • • • . • •"
           value={url}
           onChange={e => {
             setUrl(e.target.value)
@@ -161,7 +148,7 @@ export default function EntryKernel() {
           onFocus={() => perturb(0.1)}
           onBlur={() => perturb(-0.02)}
           style={inputStyle}
-          className="w-full h-11 border border-transparent rounded-md px-4 text-sm text-textPrimary placeholder:text-muted/50 outline-none"
+          className="w-full h-11 border border-transparent rounded-md px-4 text-sm text-textPrimary placeholder:text-muted/30 placeholder:tracking-[0.3em] outline-none"
         />
         <select
           value={language}
@@ -181,14 +168,12 @@ export default function EntryKernel() {
             </option>
           ))}
         </select>
-        <button
+        <EnergyBar 
+          emailValid={emailValid}
+          hasSource={sourceValid}
           onClick={handleSubmit}
           disabled={loading}
-          style={buttonStyle}
-          className="w-full h-12 border border-transparent rounded-md px-4 text-sm font-medium text-textPrimary hover:brightness-110 disabled:opacity-50 transition-all cursor-pointer uppercase tracking-wider"
-        >
-          {loading ? "→ Entering system..." : "→ Analyze"}
-        </button>
+        />
       </div>
     </div>
   )
