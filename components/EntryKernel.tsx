@@ -44,6 +44,12 @@ export default function EntryKernel() {
     }))
   }, [email, url, file])
 
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent('languageChange', {
+      detail: { language }
+    }))
+  }, [language])
+
   async function handleSubmit() {
     if (!email) return
     if (!url && !file) {

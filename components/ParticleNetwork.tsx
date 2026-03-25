@@ -9,7 +9,11 @@ interface Particle {
   vy: number
 }
 
-export default function ParticleNetwork() {
+interface ParticleNetworkProps {
+  portalActive?: boolean
+}
+
+export default function ParticleNetwork({ portalActive = false }: ParticleNetworkProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [energy, setEnergy] = useState(0.2)
   const energyRef = useRef(0.2)
@@ -55,7 +59,8 @@ export default function ParticleNetwork() {
       ctx.clearRect(0, 0, canvas.width, canvas.height)
 
       const currentEnergy = energyRef.current
-      const speedMultiplier = 1 + Math.max(0, currentEnergy - 0.2) * 0.75
+      const portalSlowdown = portalActive ? 0.5 : 1
+      const speedMultiplier = (1 + Math.max(0, currentEnergy - 0.2) * 0.75) * portalSlowdown
       const particleOpacity = 0.15 + Math.max(0, currentEnergy - 0.2) * 0.05
       const lineOpacity = 0.075 + Math.max(0, currentEnergy - 0.2) * 0.025
 
@@ -100,7 +105,7 @@ export default function ParticleNetwork() {
 
     window.addEventListener("resize", handleResize)
     return () => window.removeEventListener("resize", handleResize)
-  }, [])
+  }, [portalActive])
 
   return (
     <canvas

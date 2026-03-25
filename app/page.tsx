@@ -4,28 +4,54 @@ import EntryKernel from "@/components/EntryKernel"
 import ParticleNetwork from "@/components/ParticleNetwork"
 import Footer from "@/components/Footer"
 import ImpressumLayer from "@/components/ImpressumLayer"
+import OfferField from "@/components/OfferField"
 import Image from "next/image"
 import { getLogoColor, type LogoState } from "@/lib/colorFilters"
+import { perturb } from "@/lib/attractorSystem"
 
 export default function Home() {
   const [logoState, setLogoState] = useState<LogoState>('white')
   const [showImpressum, setShowImpressum] = useState(false)
+  const [showOfferField, setShowOfferField] = useState(false)
+  const [language, setLanguage] = useState("EN")
 
   useEffect(() => {
     const handleLogoChange = (e: CustomEvent<{ state: LogoState }>) => {
       setLogoState(e.detail.state)
     }
     
+    const handleLanguageChange = (e: CustomEvent<{ language: string }>) => {
+      setLanguage(e.detail.language)
+    }
+    
     window.addEventListener('logoStateChange', handleLogoChange as EventListener)
-    return () => window.removeEventListener('logoStateChange', handleLogoChange as EventListener)
+    window.addEventListener('languageChange', handleLanguageChange as EventListener)
+    
+    return () => {
+      window.removeEventListener('logoStateChange', handleLogoChange as EventListener)
+      window.removeEventListener('languageChange', handleLanguageChange as EventListener)
+    }
   }, [])
 
-  // Logo dimmt im Structure Mode
+  const handleLogoClick = () => {
+    if (showImpressum) return
+    
+    const newState = !showOfferField
+    console.log('Logo clicked! New state:', newState) // DEBUG
+    setShowOfferField(newState)
+    perturb(newState ? 0.2 : -0.2)
+  }
+
   const logoOpacity = showImpressum ? 0.3 : 0.9
+  const logoPulse = showOfferField ? 1.05 : 1
+
+  console.log('Current showOfferField:', showOfferField) // DEBUG
+  console.log('Current language:', language) // DEBUG
 
   return (
     <main className="relative min-h-screen flex flex-col items-center justify-center bg-bg text-textPrimary px-8">
-      <ParticleNetwork />
+      <ParticleNetwork portalActive={showOfferField} />
+      <OfferField active={showOfferField} language={language} />
 
       <div className="absolute top-10 z-20 flex items-center justify-center">
         <div className="relative">
@@ -36,7 +62,11 @@ export default function Home() {
               animation: showImpressum ? 'none' : 'pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite'
             }} 
           />
-          <div className="relative rounded-full border border-accent/20 p-2 bg-bg/50 backdrop-blur-sm overflow-hidden">
+          <button
+            onClick={handleLogoClick}
+            className="relative rounded-full border border-accent/20 p-2 bg-bg/50 backdrop-blur-sm overflow-hidden cursor-pointer transition-transform duration-400"
+            style={{ transform: `scale(${logoPulse})` }}
+          >
             <div className="relative">
               <Image 
                 src="/Logo1.png" 
@@ -53,7 +83,7 @@ export default function Home() {
                 }}
               />
             </div>
-          </div>
+          </button>
         </div>
       </div>
 
