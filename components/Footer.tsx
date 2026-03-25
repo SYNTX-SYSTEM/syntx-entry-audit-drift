@@ -1,10 +1,22 @@
-export default function Footer() {
+"use client"
+
+interface FooterProps {
+  onImpressumClick: () => void
+}
+
+export default function Footer({ onImpressumClick }: FooterProps) {
   return (
     <div className="absolute bottom-6 text-xs opacity-40 space-x-6">
-      <a href="/impressum" className="hover:opacity-70 transition">
+      <button 
+        onClick={onImpressumClick}
+        className="hover:opacity-70 hover:text-accent transition-all duration-300"
+      >
         Impressum
-      </a>
-      <a href="/examples" className="hover:opacity-70 transition">
+      </button>
+      <a 
+        href="/examples" 
+        className="hover:opacity-70 hover:text-accent transition-all duration-300"
+      >
         Beispiele
       </a>
     </div>
