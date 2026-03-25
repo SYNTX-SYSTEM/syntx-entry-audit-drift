@@ -55,9 +55,9 @@ export default function ParticleNetwork() {
       ctx.clearRect(0, 0, canvas.width, canvas.height)
 
       const currentEnergy = energyRef.current
-      const speedMultiplier = 1 + Math.max(0, currentEnergy - 0.2) * 1.5
-      const particleOpacity = 0.3 + Math.max(0, currentEnergy - 0.2) * 0.4
-      const lineOpacity = 0.15 + Math.max(0, currentEnergy - 0.2) * 0.2
+      const speedMultiplier = 1 + Math.max(0, currentEnergy - 0.2) * 0.75
+      const particleOpacity = 0.15 + Math.max(0, currentEnergy - 0.2) * 0.05
+      const lineOpacity = 0.075 + Math.max(0, currentEnergy - 0.2) * 0.025
 
       particles.forEach((particle, i) => {
         particle.x += particle.vx * speedMultiplier
