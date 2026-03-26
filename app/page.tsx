@@ -5,6 +5,7 @@ import ParticleNetwork from "@/components/ParticleNetwork"
 import Footer from "@/components/Footer"
 import ImpressumLayer from "@/components/ImpressumLayer"
 import OfferField from "@/components/OfferField"
+import ExampleField from "@/components/ExampleField"
 import Image from "next/image"
 import { getLogoColor, type LogoState } from "@/lib/colorFilters"
 import { perturb } from "@/lib/attractorSystem"
@@ -14,6 +15,7 @@ export default function Home() {
   const [showImpressum, setShowImpressum] = useState(false)
   const [showOfferField, setShowOfferField] = useState(false)
   const [language, setLanguage] = useState("EN")
+  const [activePDF, setActivePDF] = useState<string | null>(null)
 
   useEffect(() => {
     const handleLogoChange = (e: CustomEvent<{ state: LogoState }>) => {
@@ -37,21 +39,26 @@ export default function Home() {
     if (showImpressum) return
     
     const newState = !showOfferField
-    console.log('Logo clicked! New state:', newState) // DEBUG
     setShowOfferField(newState)
     perturb(newState ? 0.2 : -0.2)
+  }
+
+  const handleExampleClick = (pdfUrl: string) => {
+    setActivePDF(pdfUrl)
   }
 
   const logoOpacity = showImpressum ? 0.3 : 0.9
   const logoPulse = showOfferField ? 1.05 : 1
 
-  console.log('Current showOfferField:', showOfferField) // DEBUG
-  console.log('Current language:', language) // DEBUG
-
   return (
     <main className="relative min-h-screen flex flex-col items-center justify-center bg-bg text-textPrimary px-8">
       <ParticleNetwork portalActive={showOfferField} />
-      <OfferField active={showOfferField} language={language} />
+      
+      <OfferField 
+        active={showOfferField} 
+        language={language}
+        onExampleClick={handleExampleClick}
+      />
 
       <div className="absolute top-10 z-20 flex items-center justify-center">
         <div className="relative">
@@ -88,6 +95,9 @@ export default function Home() {
       </div>
 
       <EntryKernel />
+      
+      <ExampleField pdfUrl={activePDF} />
+
       <Footer onImpressumClick={() => setShowImpressum(true)} />
 
       {showImpressum && (
