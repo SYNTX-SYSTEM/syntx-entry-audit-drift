@@ -8,6 +8,7 @@ interface ExampleFieldProps {
 
 export default function ExampleField({ pdfUrl }: ExampleFieldProps) {
   const [attractor, setAttractor] = useState(0)
+  const [breathPhase, setBreathPhase] = useState(0)
 
   useEffect(() => {
     let st: any
@@ -16,6 +17,7 @@ export default function ExampleField({ pdfUrl }: ExampleFieldProps) {
     const iv = setInterval(() => {
       if (!st) return
       setAttractor(st.exampleAttractor)
+      setBreathPhase(prev => prev + 0.0008)
     }, 16)
     
     return () => clearInterval(iv)
@@ -31,6 +33,11 @@ export default function ExampleField({ pdfUrl }: ExampleFieldProps) {
 
   const opacity = Math.min(1, Math.max(0, (attractor - 0.6) / 0.4))
   const scale = 0.92 + attractor * 0.08
+  
+  // Atmender cyan Glow
+  const breathWave = Math.sin(breathPhase) * 0.5 + 0.5
+  const glowSize = 40 + breathWave * 30
+  const glowOpacity = 0.3 + breathWave * 0.2
 
   return (
     <div 
@@ -41,7 +48,7 @@ export default function ExampleField({ pdfUrl }: ExampleFieldProps) {
         opacity,
         transition: 'opacity 400ms ease-out',
         pointerEvents: attractor > 0.6 ? 'auto' : 'none',
-        background: `rgba(0, 0, 0, ${0.3 + attractor * 0.4})`
+        background: `rgba(0, 0, 0, ${0.4 + attractor * 0.5})`
       }}
     >
       <div
@@ -50,8 +57,12 @@ export default function ExampleField({ pdfUrl }: ExampleFieldProps) {
           width: '70%',
           height: '80%',
           transform: `scale(${scale})`,
-          boxShadow: '0 0 60px rgba(0, 217, 255, 0.3), 0 0 120px rgba(0, 217, 255, 0.15)',
-          transition: 'transform 400ms ease-out'
+          boxShadow: `
+            0 0 ${glowSize}px rgba(0, 217, 255, ${glowOpacity}),
+            0 0 ${glowSize * 1.5}px rgba(0, 217, 255, ${glowOpacity * 0.6}),
+            0 0 ${glowSize * 2}px rgba(0, 217, 255, ${glowOpacity * 0.3})
+          `,
+          transition: 'transform 400ms ease-out, box-shadow 1200ms ease-in-out'
         }}
       >
         <iframe
