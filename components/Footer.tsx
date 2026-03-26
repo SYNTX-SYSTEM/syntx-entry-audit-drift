@@ -13,12 +13,6 @@ export default function Footer({ onImpressumClick }: FooterProps) {
       >
         Impressum
       </button>
-      <a 
-        href="/examples" 
-        className="hover:opacity-70 hover:text-accent transition-all duration-300"
-      >
-        Beispiele
-      </a>
     </div>
   )
 }

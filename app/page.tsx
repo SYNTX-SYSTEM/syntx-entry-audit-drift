@@ -45,6 +45,8 @@ export default function Home() {
 
   const handleExampleClick = (pdfUrl: string) => {
     setActivePDF(pdfUrl)
+    console.log("🎯 page.tsx handleExampleClick called with:", pdfUrl)
+    console.log("🎯 Setting activePDF to:", pdfUrl)
   }
 
   const logoOpacity = showImpressum ? 0.3 : 0.9
