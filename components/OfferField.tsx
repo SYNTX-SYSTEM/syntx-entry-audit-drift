@@ -48,7 +48,6 @@ export default function OfferField({ active, language, onExampleClick }: OfferFi
       return
     }
 
-    // Spawn alle 10 Terms sofort, gleichmäßig verteilt
     const initialTerms: FloatingTerm[] = []
     const allTerms = Array.from({ length: 50 }, () => getRandomTerm(language as LanguageCode))
     const uniqueTerms = [...new Set(allTerms)].slice(0, 10)
@@ -99,7 +98,8 @@ export default function OfferField({ active, language, onExampleClick }: OfferFi
         cancelAnimationFrame(animationRef.current)
       }
     }
-  }, [active, terms.length])
+  }, [active, terms.length, language])
+
   const handleTermClick = (term: FloatingTerm) => {
     console.log("🔥 CLICK EVENT!", term.text, "isExample:", term.isExample)
     if (!term.isExample) return
