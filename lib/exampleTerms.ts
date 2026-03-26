@@ -1,6 +1,7 @@
+import { ALL_EXAMPLE_TERMS } from './allTranslations'
+
 export const EXAMPLE_TERMS = {
   EN: {
-    // Academic
     "Master's Thesis": "/examples/business-model.pdf",
     "Bachelor's Thesis": "/examples/business-model.pdf",
     "Dissertation": "/examples/business-model.pdf",
@@ -12,7 +13,6 @@ export const EXAMPLE_TERMS = {
     "Whitepaper": "/examples/business-model.pdf",
     "Literature Review": "/examples/business-model.pdf",
     "Exposé": "/examples/business-model.pdf",
-    // Digital
     "Website": "/examples/business-model.pdf",
     "Landing Page": "/examples/business-model.pdf",
     "SaaS": "/examples/business-model.pdf",
@@ -23,7 +23,6 @@ export const EXAMPLE_TERMS = {
     "Content Structure": "/examples/business-model.pdf",
     "Conversion Flow": "/examples/business-model.pdf",
     "Product Page": "/examples/business-model.pdf",
-    // AI
     "Prompt": "/examples/business-model.pdf",
     "Prompt System": "/examples/business-model.pdf",
     "Prompt Chain": "/examples/business-model.pdf",
@@ -32,7 +31,6 @@ export const EXAMPLE_TERMS = {
     "LLM Workflow": "/examples/business-model.pdf",
     "System Prompt": "/examples/business-model.pdf",
     "Automation Logic": "/examples/business-model.pdf",
-    // Tech
     "Codebase": "/examples/business-model.pdf",
     "API Design": "/examples/business-model.pdf",
     "Backend Flow": "/examples/business-model.pdf",
@@ -41,7 +39,6 @@ export const EXAMPLE_TERMS = {
     "Architecture": "/examples/business-model.pdf",
     "Repository Structure": "/examples/business-model.pdf",
     "Software System": "/examples/business-model.pdf",
-    // Brand
     "Brand Identity": "/examples/business-model.pdf",
     "Naming": "/examples/business-model.pdf",
     "Claim": "/examples/business-model.pdf",
@@ -50,7 +47,6 @@ export const EXAMPLE_TERMS = {
     "Messaging System": "/examples/business-model.pdf",
     "Communication Strategy": "/examples/business-model.pdf",
     "Storyline": "/examples/business-model.pdf",
-    // Strategy
     "Business Model": "/examples/business-model.pdf",
     "Offer Architecture": "/examples/business-model.pdf",
     "Decision Tree": "/examples/business-model.pdf",
@@ -61,7 +57,6 @@ export const EXAMPLE_TERMS = {
     "Overall Strategy": "/examples/business-model.pdf"
   },
   DE: {
-    // Academic
     "Masterarbeit": "/examples/business-model.pdf",
     "Bachelorarbeit": "/examples/business-model.pdf",
     "Dissertation": "/examples/business-model.pdf",
@@ -73,7 +68,6 @@ export const EXAMPLE_TERMS = {
     "Whitepaper": "/examples/business-model.pdf",
     "Literaturreview": "/examples/business-model.pdf",
     "Exposé": "/examples/business-model.pdf",
-    // Digital
     "Webseite": "/examples/business-model.pdf",
     "Landingpage": "/examples/business-model.pdf",
     "SaaS": "/examples/business-model.pdf",
@@ -84,7 +78,6 @@ export const EXAMPLE_TERMS = {
     "Content-Struktur": "/examples/business-model.pdf",
     "Conversion-Flow": "/examples/business-model.pdf",
     "Produktseite": "/examples/business-model.pdf",
-    // AI
     "Prompt": "/examples/business-model.pdf",
     "Prompt-System": "/examples/business-model.pdf",
     "Prompt Chain": "/examples/business-model.pdf",
@@ -93,7 +86,6 @@ export const EXAMPLE_TERMS = {
     "LLM-Workflow": "/examples/business-model.pdf",
     "System-Prompt": "/examples/business-model.pdf",
     "Automations-Logik": "/examples/business-model.pdf",
-    // Tech
     "Codebasis": "/examples/business-model.pdf",
     "API-Design": "/examples/business-model.pdf",
     "Backend-Flow": "/examples/business-model.pdf",
@@ -102,7 +94,6 @@ export const EXAMPLE_TERMS = {
     "Architektur": "/examples/business-model.pdf",
     "Repository-Struktur": "/examples/business-model.pdf",
     "Software-System": "/examples/business-model.pdf",
-    // Brand
     "Markenidentität": "/examples/business-model.pdf",
     "Naming": "/examples/business-model.pdf",
     "Claim": "/examples/business-model.pdf",
@@ -111,7 +102,6 @@ export const EXAMPLE_TERMS = {
     "Messaging-System": "/examples/business-model.pdf",
     "Kommunikationsstrategie": "/examples/business-model.pdf",
     "Storyline": "/examples/business-model.pdf",
-    // Strategy
     "Geschäftsmodell": "/examples/business-model.pdf",
     "Angebotsarchitektur": "/examples/business-model.pdf",
     "Entscheidungsbaum": "/examples/business-model.pdf",
@@ -120,15 +110,73 @@ export const EXAMPLE_TERMS = {
     "Prozesslogik": "/examples/business-model.pdf",
     "Produktstrategie": "/examples/business-model.pdf",
     "Gesamtstrategie": "/examples/business-model.pdf"
-  }
+  },
+  ES: {
+    "Tesis de Maestría": "/examples/business-model.pdf",
+    "Tesis de Licenciatura": "/examples/business-model.pdf",
+    "Disertación": "/examples/business-model.pdf",
+    "Habilitación": "/examples/business-model.pdf",
+    "Propuesta de Investigación": "/examples/business-model.pdf",
+    "Artículo": "/examples/business-model.pdf",
+    "Ensayo": "/examples/business-model.pdf",
+    "Manuscrito": "/examples/business-model.pdf",
+    "Libro Blanco": "/examples/business-model.pdf",
+    "Revisión Bibliográfica": "/examples/business-model.pdf",
+    "Exposición": "/examples/business-model.pdf",
+    "Sitio Web": "/examples/business-model.pdf",
+    "Página de Aterrizaje": "/examples/business-model.pdf",
+    "SaaS": "/examples/business-model.pdf",
+    "Flujo UX": "/examples/business-model.pdf",
+    "Viaje del Usuario": "/examples/business-model.pdf",
+    "Sistema de Navegación": "/examples/business-model.pdf",
+    "Arquitectura de Información": "/examples/business-model.pdf",
+    "Estructura de Contenido": "/examples/business-model.pdf",
+    "Flujo de Conversión": "/examples/business-model.pdf",
+    "Página de Producto": "/examples/business-model.pdf",
+    "Prompt": "/examples/business-model.pdf",
+    "Sistema de Prompts": "/examples/business-model.pdf",
+    "Cadena de Prompts": "/examples/business-model.pdf",
+    "Arquitectura de Agentes": "/examples/business-model.pdf",
+    "Flujo de Herramientas": "/examples/business-model.pdf",
+    "Flujo LLM": "/examples/business-model.pdf",
+    "Prompt del Sistema": "/examples/business-model.pdf",
+    "Lógica de Automatización": "/examples/business-model.pdf",
+    "Base de Código": "/examples/business-model.pdf",
+    "Diseño de API": "/examples/business-model.pdf",
+    "Flujo Backend": "/examples/business-model.pdf",
+    "Modelo de Datos": "/examples/business-model.pdf",
+    "Máquina de Estados": "/examples/business-model.pdf",
+    "Arquitectura": "/examples/business-model.pdf",
+    "Estructura de Repositorio": "/examples/business-model.pdf",
+    "Sistema de Software": "/examples/business-model.pdf",
+    "Identidad de Marca": "/examples/business-model.pdf",
+    "Naming": "/examples/business-model.pdf",
+    "Claim": "/examples/business-model.pdf",
+    "Posicionamiento": "/examples/business-model.pdf",
+    "Estructura Narrativa": "/examples/business-model.pdf",
+    "Sistema de Mensajería": "/examples/business-model.pdf",
+    "Estrategia de Comunicación": "/examples/business-model.pdf",
+    "Historia": "/examples/business-model.pdf",
+    "Modelo de Negocio": "/examples/business-model.pdf",
+    "Arquitectura de Oferta": "/examples/business-model.pdf",
+    "Árbol de Decisiones": "/examples/business-model.pdf",
+    "Sistema de Reglas": "/examples/business-model.pdf",
+    "Estructura Organizacional": "/examples/business-model.pdf",
+    "Lógica de Procesos": "/examples/business-model.pdf",
+    "Estrategia de Producto": "/examples/business-model.pdf",
+    "Estrategia General": "/examples/business-model.pdf"
+  },
+  ...ALL_EXAMPLE_TERMS
 } as const
 
 export type LanguageCode = keyof typeof EXAMPLE_TERMS
 
 export function isExampleTerm(text: string, lang: LanguageCode): boolean {
-  return text in EXAMPLE_TERMS[lang]
+  const terms = EXAMPLE_TERMS[lang] || EXAMPLE_TERMS['EN']
+  return text in terms
 }
 
 export function getExamplePDF(text: string, lang: LanguageCode): string | null {
-  return EXAMPLE_TERMS[lang][text as keyof typeof EXAMPLE_TERMS[typeof lang]] || null
+  const terms = EXAMPLE_TERMS[lang] || EXAMPLE_TERMS['EN']
+  return terms[text as keyof typeof terms] || null
 }

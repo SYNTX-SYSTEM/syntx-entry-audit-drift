@@ -1,5 +1,3 @@
-import { ALL_OFFER_TERMS } from './allTranslations'
-
 export const OFFER_TERMS = {
   EN: {
     academic: [
@@ -135,77 +133,7 @@ export const OFFER_TERMS = {
       "Produktstrategie",
       "Gesamtstrategie"
     ]
-  },
-
-  ES: {
-    academic: [
-      "Tesis de Maestría",
-      "Tesis de Licenciatura",
-      "Disertación",
-      "Habilitación",
-      "Propuesta de Investigación",
-      "Artículo",
-      "Ensayo",
-      "Manuscrito",
-      "Libro Blanco",
-      "Revisión Bibliográfica",
-      "Exposición"
-    ],
-    digital: [
-      "Sitio Web",
-      "Página de Aterrizaje",
-      "SaaS",
-      "Flujo UX",
-      "Viaje del Usuario",
-      "Sistema de Navegación",
-      "Arquitectura de Información",
-      "Estructura de Contenido",
-      "Flujo de Conversión",
-      "Página de Producto"
-    ],
-    ai: [
-      "Prompt",
-      "Sistema de Prompts",
-      "Cadena de Prompts",
-      "Arquitectura de Agentes",
-      "Flujo de Herramientas",
-      "Flujo LLM",
-      "Prompt del Sistema",
-      "Lógica de Automatización"
-    ],
-    tech: [
-      "Base de Código",
-      "Diseño de API",
-      "Flujo Backend",
-      "Modelo de Datos",
-      "Máquina de Estados",
-      "Arquitectura",
-      "Estructura de Repositorio",
-      "Sistema de Software"
-    ],
-    brand: [
-      "Identidad de Marca",
-      "Naming",
-      "Claim",
-      "Posicionamiento",
-      "Estructura Narrativa",
-      "Sistema de Mensajería",
-      "Estrategia de Comunicación",
-      "Historia"
-    ],
-    strategy: [
-      "Modelo de Negocio",
-      "Arquitectura de Oferta",
-      "Árbol de Decisiones",
-      "Sistema de Reglas",
-      "Estructura Organizacional",
-      "Lógica de Procesos",
-      "Estrategia de Producto",
-      "Estrategia General"
-    ]
-  },
-
-  ...ALL_OFFER_TERMS
+  }
 } as const
 
 export type LanguageCode = keyof typeof OFFER_TERMS
