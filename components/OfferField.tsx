@@ -2,6 +2,7 @@
 import { useEffect, useState, useRef } from "react"
 import { getRandomTerm, type LanguageCode } from "@/lib/offerTerms"
 import { isExampleTerm, getExamplePDF } from "@/lib/exampleTerms"
+import { modulate } from "@/lib/attractorSystem"
 
 interface FloatingTerm {
   id: number
@@ -108,6 +109,7 @@ export default function OfferField({ active, language, onExampleClick }: OfferFi
     console.log("📄 PDF result:", pdf)
     
     if (pdf) {
+      modulate({ exampleActive: true })
       console.log("📄 Calling onExampleClick with:", pdf)
       onExampleClick(pdf)
     }
