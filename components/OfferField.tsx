@@ -1,8 +1,6 @@
 "use client"
 import { useEffect, useState, useRef } from "react"
-import { getRandomTerm, type LanguageCode as OfferLangCode } from "@/lib/offerTerms"
-import { isExampleTerm, getExamplePDF, type LanguageCode as ExampleLangCode } from "@/lib/exampleTerms"
-import { modulate } from "@/lib/attractorSystem"
+import { getRandomTerm, type LanguageCode } from "@/lib/offerTerms"
 
 interface FloatingTerm {
   id: number
@@ -10,16 +8,14 @@ interface FloatingTerm {
   angle: number
   radius: number
   speed: number
-  isExample: boolean
 }
 
 interface OfferFieldProps {
   active: boolean
   language: string
-  onExampleClick: (pdfUrl: string) => void
 }
 
-export default function OfferField({ active, language, onExampleClick }: OfferFieldProps) {
+export default function OfferField({ active, language }: OfferFieldProps) {
   const [terms, setTerms] = useState<FloatingTerm[]>([])
   const [centerX, setCenterX] = useState(0)
   const [centerY, setCenterY] = useState(0)
@@ -48,47 +44,26 @@ export default function OfferField({ active, language, onExampleClick }: OfferFi
       return
     }
 
-    const spawnTerm = () => {
-      setTerms(prev => {
-        if (prev.length >= 10) return prev
-
-        let newText = getRandomTerm(language as OfferLangCode)
-        let attempts = 0
-        while (usedTermsRef.current.has(newText) && attempts < 20) {
-          newText = getRandomTerm(language as OfferLangCode)
-          attempts++
-        }
-
-        const isExample = isExampleTerm(newText, language as ExampleLangCode)
-
-        const newTerm: FloatingTerm = {
-          id: nextIdRef.current++,
-          text: newText,
-          angle: Math.random() * Math.PI * 2,
-          radius: 300 + Math.random() * 200,
-          speed: (Math.random() > 0.5 ? 1 : -1) * (0.0004 + Math.random() * 0.0006),
-          isExample
-        }
-
-        usedTermsRef.current.add(newText)
-
-        setTimeout(() => {
-          setTerms(current => current.filter(t => t.id !== newTerm.id))
-          usedTermsRef.current.delete(newText)
-        }, 45000)
-
-        return [...prev, newTerm]
-      })
+    // Spawn alle 10 Terms sofort, gleichmäßig verteilt
+    const initialTerms: FloatingTerm[] = []
+    const allTerms = Array.from({ length: 50 }, () => getRandomTerm(language as LanguageCode))
+    const uniqueTerms = [...new Set(allTerms)].slice(0, 10)
+    
+    for (let i = 0; i < 10; i++) {
+      const newTerm: FloatingTerm = {
+        id: nextIdRef.current++,
+        text: uniqueTerms[i] || `Term ${i}`,
+        angle: (i / 10) * Math.PI * 2,
+        radius: 400,
+        speed: 0.0003
+      }
+      initialTerms.push(newTerm)
+      usedTermsRef.current.add(newTerm.text)
     }
-
-    spawnTerm()
-
-    const interval = setInterval(() => {
-      spawnTerm()
-    }, 4000 + Math.random() * 3000)
+    
+    setTerms(initialTerms)
 
     return () => {
-      clearInterval(interval)
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current)
       }
@@ -117,20 +92,10 @@ export default function OfferField({ active, language, onExampleClick }: OfferFi
     }
   }, [active, terms.length])
 
-  const handleTermClick = (term: FloatingTerm) => {
-    if (!term.isExample) return
-    
-    const pdfUrl = getExamplePDF(term.text, language as ExampleLangCode)
-    if (pdfUrl) {
-      modulate({ exampleActive: true })
-      onExampleClick(pdfUrl)
-    }
-  }
-
   if (!active && terms.length === 0) return null
 
   return (
-    <div className="fixed inset-0" style={{ zIndex: 15, pointerEvents: 'none' }}>
+    <div className="fixed inset-0 pointer-events-none" style={{ zIndex: 15 }}>
       {terms.map(term => {
         const x = centerX + Math.cos(term.angle) * term.radius
         const y = centerY + Math.sin(term.angle) * term.radius
@@ -138,7 +103,6 @@ export default function OfferField({ active, language, onExampleClick }: OfferFi
         return (
           <div
             key={term.id}
-            onClick={() => handleTermClick(term)}
             className="absolute font-light whitespace-nowrap"
             style={{
               left: `${x}px`,
@@ -158,15 +122,13 @@ export default function OfferField({ active, language, onExampleClick }: OfferFi
               padding: '8px 16px',
               borderRadius: '20px',
               backdropFilter: 'blur(8px)',
-              border: term.isExample ? '2px solid rgba(0, 240, 255, 0.5)' : '1px solid rgba(0, 240, 255, 0.2)',
+              border: '1px solid rgba(0, 240, 255, 0.2)',
               boxShadow: `
                 0 0 15px rgba(0, 240, 255, 0.3),
                 inset 0 0 20px rgba(0, 240, 255, 0.1)
               `,
-              transition: 'opacity 3s ease-in-out, border 300ms ease',
-              animation: 'termFadeIn 3s ease-out, termPulse 4s ease-in-out infinite',
-              pointerEvents: term.isExample ? 'auto' : 'none',
-              cursor: term.isExample ? 'pointer' : 'default'
+              transition: 'opacity 3s ease-in-out',
+              animation: 'termFadeIn 3s ease-out, termPulse 4s ease-in-out infinite'
             }}
           >
             {term.text}
