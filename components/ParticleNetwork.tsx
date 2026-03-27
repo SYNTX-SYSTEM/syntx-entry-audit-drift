@@ -61,8 +61,8 @@ export default function ParticleNetwork({ portalActive = false }: ParticleNetwor
       const currentEnergy = energyRef.current
       const portalSlowdown = portalActive ? 0.5 : 1
       const speedMultiplier = (1 + Math.max(0, currentEnergy - 0.2) * 0.75) * portalSlowdown
-      const particleOpacity = 0.4 + Math.max(0, currentEnergy - 0.2) * 0.3
-      const lineOpacity = 0.3 + Math.max(0, currentEnergy - 0.2) * 0.2
+      const particleOpacity = 0.3 + Math.max(0, currentEnergy - 0.2) * 0.3
+      const lineOpacity = 0.2 + Math.max(0, currentEnergy - 0.2) * 0.2
 
       particles.forEach((particle, i) => {
         particle.x += particle.vx * speedMultiplier
