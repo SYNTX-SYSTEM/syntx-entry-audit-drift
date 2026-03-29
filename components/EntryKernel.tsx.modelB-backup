@@ -5,30 +5,23 @@ import { perturb, singularity, onAttractorChange, modulate } from "@/lib/attract
 import { isValidEmail, hasValidSource } from "@/lib/validation"
 import { determineLogoState } from "@/lib/colorFilters"
 import { LANGUAGES } from "@/lib/languages"
+import EnergyBar from "./EnergyBar"
 
 export default function EntryKernel() {
   const [email, setEmail] = useState("")
   const [url, setUrl] = useState("")
   const [file, setFile] = useState<File | null>(null)
   const [language, setLanguage] = useState("EN")
+  const [loading, setLoading] = useState(false)
   const [breathIntensity, setBreathIntensity] = useState(0.4)
   const [breathPhase, setBreathPhase] = useState(0)
   const [logoState, setLogoState] = useState<'white' | 'red' | 'green'>('white')
 
-  // Kernel as analysis center - single source of truth
-  const [kernelState, setKernelState] = useState<"idle" | "ready" | "processing" | "complete">("idle")
-  
-  // Activation micro-interaction (VISUAL only, not business state)
-  const [activationPhase, setActivationPhase] = useState<"none" | "contract" | "release">("none")
-  
-  // Seal phase - Abschluss-Symbol (VISUAL only)
-  const [sealPhase, setSealPhase] = useState<"none" | "closing">("none")
-  const [showSupernova, setShowSupernova] = useState(false)
-
-  // Upload states - visual only, no backend
+  // Upload states - separated from analysis
   const [uploadState, setUploadState] = useState<"idle" | "uploading" | "uploaded">("idle")
   const [uploadedFileName, setUploadedFileName] = useState<string | null>(null)
   const [dragging, setDragging] = useState(false)
+  const [jobId, setJobId] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
@@ -64,42 +57,96 @@ export default function EntryKernel() {
     }))
   }, [language])
 
-  // Set kernel ready when valid input exists
-  useEffect(() => {
-    const emailValid = isValidEmail(email)
-    const hasSource = hasValidSource(url, file)
-    
-    
-    if (emailValid && hasSource && kernelState === "idle") {
-      setKernelState("ready")
-    } else if ((!emailValid || !hasSource) && kernelState === "ready") {
-      setKernelState("idle")
+  async function handleSubmit() {
+    if (!email) return
+    if (!url && !file) {
+      perturb(0.3)
+      return
     }
-  }, [email, url, file, kernelState])
 
-  // Visual upload only - NO backend call
-  const handleUpload = (file: File) => {
-    setUploadState("uploading")
-    perturb(0.15)
+    setLoading(true)
+    singularity()
 
-    setTimeout(() => {
-      setFile(file)
-      setUploadedFileName(file.name)
-      setUploadState("uploaded")
-      
-      modulate({ energy: 0.12 })
-      setTimeout(() => modulate({ energy: -0.08 }), 600)
-    }, 300)
+    const fd = new FormData()
+    fd.append("email", email)
+    fd.append("language", language)
+    if (file) fd.append("file", file)
+    else if (url) fd.append("url", url)
+
+    try {
+      await submitEntry(fd)
+      setEmail("")
+      setUrl("")
+      setFile(null)
+    } catch {
+      setLoading(false)
+    } finally {
+      setTimeout(() => {
+        perturb(-0.8)
+        setLoading(false)
+      }, 600)
+    }
   }
 
-  const handleDrop = (e: React.DragEvent) => {
+  // Upload to backend
+  const uploadToBackend = async (
+    file: File,
+    url: string,
+    email: string,
+    language: string
+  ) => {
+    const formData = new FormData()
+    formData.append("url", url)
+    formData.append("email", email)
+    formData.append("language", language)
+    formData.append("file", file)
+
+    const response = await fetch(
+      process.env.NEXT_PUBLIC_API_URL + "/submit",
+      {
+        method: "POST",
+        body: formData
+      }
+    )
+
+    if (!response.ok) {
+      throw new Error("Upload failed")
+    }
+
+    return await response.json()
+  }
+
+  const handleUpload = async (file: File) => {
+    try {
+      setUploadState("uploading")
+      perturb(0.15)
+
+      const uploadUrl = url || "https://syntx-system.com"
+      const uploadEmail = email || "audit@syntx-system.com"
+
+      const result = await uploadToBackend(file, uploadUrl, uploadEmail, language)
+
+      setJobId(result.id)
+      setUploadedFileName(file.name)
+      setUploadState("uploaded")
+
+      modulate({ energy: 0.12 })
+      setTimeout(() => modulate({ energy: -0.08 }), 600)
+
+    } catch (err) {
+      console.error("Upload failed:", err)
+      setUploadState("idle")
+    }
+  }
+
+  const handleDrop = async (e: React.DragEvent) => {
     e.preventDefault()
     setDragging(false)
 
     const file = e.dataTransfer.files[0]
     if (!file) return
 
-    handleUpload(file)
+    await handleUpload(file)
   }
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -113,91 +160,15 @@ export default function EntryKernel() {
     perturb(-0.05)
   }
 
-  // Kernel activation - Energie-Transfer Sequenz
-  const handleKernelActivation = async () => {
-    if (kernelState !== "ready") return
-
-    // 1. CONTRACT - Energie wird eingezogen
-    setActivationPhase("contract")
-    modulate({ energy: 0.45 })
-    perturb(0.3)
-
-    setTimeout(() => {
-      // 2. RELEASE - Peak Moment + SUPERNOVA
-      setActivationPhase("release")
-      setShowSupernova(true)
-      singularity()
-      
-      // Supernova fade out nach 800ms
-      setTimeout(() => setShowSupernova(false), 800)
-      
-      setTimeout(() => {
-        // 3. PROCESSING - System arbeitet
-        setKernelState("processing")
-        setActivationPhase("none")
-        
-        // Energie bleibt 2s erhöht, dann weich runter
-        setTimeout(() => modulate({ energy: -0.25 }), 2000)
-      }, 180)
-    }, 120)
-
-    // 4. Backend call (nach visual feedback!)
-    const fd = new FormData()
-    fd.append("email", email)
-    fd.append("language", language)
-    fd.append("url", url || "https://syntx-system.com")
-    if (file) {
-      fd.append("file", file)
-    }
-    try {
-      await submitEntry(fd)
-      
-      // Seal - Abschluss-Symbol (600ms)
-      setKernelState("complete")
-      setSealPhase("closing")
-      
-      setTimeout(() => {
-        setSealPhase("none")
-      }, 600)
-
-      // Post-Send Ruhe (1.2s), dann Reset
-      setTimeout(() => {
-        setEmail("")
-        setUrl("")
-        setFile(null)
-        setUploadState("idle")
-        setUploadedFileName(null)
-        
-        setKernelState("idle")
-        
-        modulate({ energy: -0.2 })
-      }, 1800)
-
-    } catch (err) {
-      console.error("Analysis failed:", err)
-      setKernelState("idle")
-      modulate({ energy: -0.3 })
-    }
-  }
-
   const breathWave = Math.sin(breathPhase) * 0.5 + 0.5
   const glowSize = 55 + breathWave * 30 + Math.min(breathIntensity * 45, 55)
   const glowOpacity = 0.22 + Math.min(breathIntensity * 0.35, 0.4) + breathWave * 0.14
   
   const bgGlowOpacity = 0.14 + Math.min(breathIntensity * 0.2, 0.25) + breathWave * 0.12
 
-  const isInteractive = kernelState === "ready"
-
   const containerGlowStyle = {
-    boxShadow: kernelState === "processing"
-      ? `0 0 ${glowSize * 1.3}px rgba(0, 217, 255, ${glowOpacity * 1.2})`
-      : kernelState === "ready"
-      ? `0 0 ${glowSize * 1.05}px rgba(0, 217, 255, ${glowOpacity * 1.05})`
-      : `0 0 ${glowSize}px rgba(0, 217, 255, ${glowOpacity})`,
-    transition: kernelState === "processing"
-      ? 'box-shadow 4500ms ease-in-out infinite'
-      : 'box-shadow 1500ms ease-out',
-    cursor: isInteractive ? "pointer" : "default"
+    boxShadow: `0 0 ${glowSize}px rgba(0, 217, 255, ${glowOpacity})`,
+    transition: 'box-shadow 1500ms ease-out'
   }
 
   const backgroundGlowStyle = {
@@ -225,9 +196,11 @@ export default function EntryKernel() {
     transition: 'all 1200ms cubic-bezier(0.4, 0, 0.2, 1)'
   }
 
+  const emailValid = isValidEmail(email)
+  const sourceValid = hasValidSource(url, file)
+
   return (
     <div 
-      id="kernel-root"
       className="w-full max-w-[520px] relative z-10 p-6 rounded-lg"
       style={containerGlowStyle}
     >
@@ -235,18 +208,6 @@ export default function EntryKernel() {
         className="absolute inset-0 rounded-lg -z-10"
         style={backgroundGlowStyle}
       />
-      
-      {/* SUPERNOVA - Explosion beim Click */}
-      {showSupernova && (
-        <div 
-          className="absolute inset-0 rounded-lg -z-10 pointer-events-none"
-          style={{
-            background: "radial-gradient(circle at center, rgba(0, 217, 255, 0.4) 0%, rgba(0, 217, 255, 0.2) 30%, transparent 70%)",
-            animation: "supernova 800ms cubic-bezier(0.4, 0, 0.2, 1) forwards"
-          }}
-        />
-      )}
-      
       <div className="space-y-3 relative z-10">
         <input
           type="email"
@@ -259,7 +220,7 @@ export default function EntryKernel() {
           onFocus={() => perturb(0.3)}
           onBlur={() => perturb(-0.02)}
           style={inputStyle}
-          className="w-full h-11 border border-transparent rounded-md px-4 text-sm text-textPrimary placeholder:text-muted/50 placeholder:tracking-[0.3em] outline-none"
+          className="w-full h-11 border border-transparent rounded-md px-4 text-sm text-textPrimary placeholder:text-muted/30 placeholder:tracking-[0.3em] outline-none"
         />
         <input
           type="text"
@@ -267,20 +228,12 @@ export default function EntryKernel() {
           value={url}
           onChange={e => {
             setUrl(e.target.value)
-            if (file) {
-              setFile(null)
-              setUploadState("idle")
-              setUploadedFileName(null)
-            }
+            if (file) setFile(null)
           }}
           onFocus={() => perturb(0.1)}
           onBlur={() => perturb(-0.02)}
-          disabled={uploadState === "uploaded"}
-          style={{
-            ...inputStyle,
-            opacity: uploadState === "uploaded" ? 0.5 : 1
-          }}
-          className="w-full h-11 border border-transparent rounded-md px-4 text-sm text-textPrimary placeholder:text-muted/50 placeholder:tracking-[0.3em] outline-none"
+          style={inputStyle}
+          className="w-full h-11 border border-transparent rounded-md px-4 text-sm text-textPrimary placeholder:text-muted/30 placeholder:tracking-[0.3em] outline-none"
         />
         <select
           value={language}
@@ -300,42 +253,12 @@ export default function EntryKernel() {
             </option>
           ))}
         </select>
-        {/* CORE ACTIVATION RING - SYMBIOTISCH */}
-        <div
-          onClick={kernelState === "ready" ? handleKernelActivation : undefined}
-          className="relative mt-4 mb-2 h-12 rounded-full transition-all duration-700"
-          style={{
-            cursor: kernelState === "ready" ? "pointer" : "default",
-            background:
-              !isValidEmail(email)
-                ? "rgba(255, 50, 50, 0.03)"
-                : kernelState === "ready"
-                ? "rgba(0, 217, 255, 0.04)"
-                : kernelState === "processing"
-                ? "rgba(0, 217, 255, 0.08)"
-                : "rgba(0, 217, 255, 0.015)",
-            border: !isValidEmail(email)
-              ? "2px solid rgba(255, 50, 50, 0.3)"
-              : kernelState === "ready"
-              ? "2px solid rgba(0, 217, 255, 0.4)"
-              : "1px solid rgba(0, 217, 255, 0.15)",
-            boxShadow:
-              !isValidEmail(email)
-                ? "0 0 25px rgba(255, 50, 50, 0.2), inset 0 0 15px rgba(255, 50, 50, 0.1)"
-                : kernelState === "ready"
-                ? "0 0 35px rgba(0, 217, 255, 0.3), inset 0 0 20px rgba(0, 217, 255, 0.15)"
-                : kernelState === "processing"
-                ? "0 0 50px rgba(0, 217, 255, 0.4) inset"
-                : "0 0 12px rgba(0, 217, 255, 0.08)",
-            transform: kernelState === "ready" ? "scale(1.02)" : "scale(1)",
-            animation: !isValidEmail(email)
-              ? "pulse 2s ease-in-out infinite"
-              : kernelState === "processing"
-              ? "pulse 3s ease-in-out infinite"
-              : "none"
-          }}
+        <EnergyBar 
+          emailValid={emailValid}
+          hasSource={sourceValid}
+          onClick={handleSubmit}
+          disabled={loading}
         />
-
 
         <div
           className="relative mt-4 rounded-2xl border border-cyan-400/15 bg-[rgba(0,20,30,0.55)] backdrop-blur-md transition-all duration-500 overflow-hidden cursor-pointer"
@@ -347,10 +270,7 @@ export default function EntryKernel() {
               : "0 0 30px rgba(0,240,255,0.08)",
             transform: dragging ? "scale(1.02)" : "scale(1)"
           }}
-          onClick={(e) => {
-            e.stopPropagation()
-            fileInputRef.current?.click()
-          }}
+          onClick={() => fileInputRef.current?.click()}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
@@ -385,18 +305,6 @@ export default function EntryKernel() {
             )}
           </div>
         </div>
-
-        {kernelState === "ready" && (
-          <div className="text-center text-[10px] text-cyan-400/40 tracking-[0.2em] mt-3 font-light">
-            CORE READY
-          </div>
-        )}
-
-        {kernelState === "processing" && (
-          <div className="text-center text-[10px] text-cyan-400/60 tracking-[0.2em] mt-3 font-light animate-pulse">
-            SYSTEM PROCESSING
-          </div>
-        )}
       </div>
     </div>
   )

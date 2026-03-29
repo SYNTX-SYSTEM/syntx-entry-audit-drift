@@ -17,13 +17,6 @@ export default function EntryKernel() {
 
   // Kernel as analysis center - single source of truth
   const [kernelState, setKernelState] = useState<"idle" | "ready" | "processing" | "complete">("idle")
-  
-  // Activation micro-interaction (VISUAL only, not business state)
-  const [activationPhase, setActivationPhase] = useState<"none" | "contract" | "release">("none")
-  
-  // Seal phase - Abschluss-Symbol (VISUAL only)
-  const [sealPhase, setSealPhase] = useState<"none" | "closing">("none")
-  const [showSupernova, setShowSupernova] = useState(false)
 
   // Upload states - visual only, no backend
   const [uploadState, setUploadState] = useState<"idle" | "uploading" | "uploaded">("idle")
@@ -69,7 +62,6 @@ export default function EntryKernel() {
     const emailValid = isValidEmail(email)
     const hasSource = hasValidSource(url, file)
     
-    
     if (emailValid && hasSource && kernelState === "idle") {
       setKernelState("ready")
     } else if ((!emailValid || !hasSource) && kernelState === "ready") {
@@ -113,54 +105,30 @@ export default function EntryKernel() {
     perturb(-0.05)
   }
 
-  // Kernel activation - Energie-Transfer Sequenz
+  // Kernel activation - system reacts THEN backend
   const handleKernelActivation = async () => {
     if (kernelState !== "ready") return
 
-    // 1. CONTRACT - Energie wird eingezogen
-    setActivationPhase("contract")
-    modulate({ energy: 0.45 })
+    // 1. System reacts FIRST
+    modulate({ energy: 0.4 })
     perturb(0.3)
+    singularity()
 
-    setTimeout(() => {
-      // 2. RELEASE - Peak Moment + SUPERNOVA
-      setActivationPhase("release")
-      setShowSupernova(true)
-      singularity()
-      
-      // Supernova fade out nach 800ms
-      setTimeout(() => setShowSupernova(false), 800)
-      
-      setTimeout(() => {
-        // 3. PROCESSING - System arbeitet
-        setKernelState("processing")
-        setActivationPhase("none")
-        
-        // Energie bleibt 2s erhöht, dann weich runter
-        setTimeout(() => modulate({ energy: -0.25 }), 2000)
-      }, 180)
-    }, 120)
+    setKernelState("processing")
 
-    // 4. Backend call (nach visual feedback!)
+    // 2. Backend call
     const fd = new FormData()
     fd.append("email", email)
     fd.append("language", language)
-    fd.append("url", url || "https://syntx-system.com")
-    if (file) {
-      fd.append("file", file)
-    }
+    if (file) fd.append("file", file)
+    else if (url) fd.append("url", url)
+
     try {
       await submitEntry(fd)
       
-      // Seal - Abschluss-Symbol (600ms)
       setKernelState("complete")
-      setSealPhase("closing")
-      
-      setTimeout(() => {
-        setSealPhase("none")
-      }, 600)
 
-      // Post-Send Ruhe (1.2s), dann Reset
+      // 3. Normalize system - data first, then state
       setTimeout(() => {
         setEmail("")
         setUrl("")
@@ -171,7 +139,7 @@ export default function EntryKernel() {
         setKernelState("idle")
         
         modulate({ energy: -0.2 })
-      }, 1800)
+      }, 2500)
 
     } catch (err) {
       console.error("Analysis failed:", err)
@@ -230,23 +198,12 @@ export default function EntryKernel() {
       id="kernel-root"
       className="w-full max-w-[520px] relative z-10 p-6 rounded-lg"
       style={containerGlowStyle}
+      onClick={isInteractive ? handleKernelActivation : undefined}
     >
       <div 
         className="absolute inset-0 rounded-lg -z-10"
         style={backgroundGlowStyle}
       />
-      
-      {/* SUPERNOVA - Explosion beim Click */}
-      {showSupernova && (
-        <div 
-          className="absolute inset-0 rounded-lg -z-10 pointer-events-none"
-          style={{
-            background: "radial-gradient(circle at center, rgba(0, 217, 255, 0.4) 0%, rgba(0, 217, 255, 0.2) 30%, transparent 70%)",
-            animation: "supernova 800ms cubic-bezier(0.4, 0, 0.2, 1) forwards"
-          }}
-        />
-      )}
-      
       <div className="space-y-3 relative z-10">
         <input
           type="email"
@@ -259,7 +216,7 @@ export default function EntryKernel() {
           onFocus={() => perturb(0.3)}
           onBlur={() => perturb(-0.02)}
           style={inputStyle}
-          className="w-full h-11 border border-transparent rounded-md px-4 text-sm text-textPrimary placeholder:text-muted/50 placeholder:tracking-[0.3em] outline-none"
+          className="w-full h-11 border border-transparent rounded-md px-4 text-sm text-textPrimary placeholder:text-muted/30 placeholder:tracking-[0.3em] outline-none"
         />
         <input
           type="text"
@@ -280,7 +237,7 @@ export default function EntryKernel() {
             ...inputStyle,
             opacity: uploadState === "uploaded" ? 0.5 : 1
           }}
-          className="w-full h-11 border border-transparent rounded-md px-4 text-sm text-textPrimary placeholder:text-muted/50 placeholder:tracking-[0.3em] outline-none"
+          className="w-full h-11 border border-transparent rounded-md px-4 text-sm text-textPrimary placeholder:text-muted/30 placeholder:tracking-[0.3em] outline-none"
         />
         <select
           value={language}
@@ -300,42 +257,6 @@ export default function EntryKernel() {
             </option>
           ))}
         </select>
-        {/* CORE ACTIVATION RING - SYMBIOTISCH */}
-        <div
-          onClick={kernelState === "ready" ? handleKernelActivation : undefined}
-          className="relative mt-4 mb-2 h-12 rounded-full transition-all duration-700"
-          style={{
-            cursor: kernelState === "ready" ? "pointer" : "default",
-            background:
-              !isValidEmail(email)
-                ? "rgba(255, 50, 50, 0.03)"
-                : kernelState === "ready"
-                ? "rgba(0, 217, 255, 0.04)"
-                : kernelState === "processing"
-                ? "rgba(0, 217, 255, 0.08)"
-                : "rgba(0, 217, 255, 0.015)",
-            border: !isValidEmail(email)
-              ? "2px solid rgba(255, 50, 50, 0.3)"
-              : kernelState === "ready"
-              ? "2px solid rgba(0, 217, 255, 0.4)"
-              : "1px solid rgba(0, 217, 255, 0.15)",
-            boxShadow:
-              !isValidEmail(email)
-                ? "0 0 25px rgba(255, 50, 50, 0.2), inset 0 0 15px rgba(255, 50, 50, 0.1)"
-                : kernelState === "ready"
-                ? "0 0 35px rgba(0, 217, 255, 0.3), inset 0 0 20px rgba(0, 217, 255, 0.15)"
-                : kernelState === "processing"
-                ? "0 0 50px rgba(0, 217, 255, 0.4) inset"
-                : "0 0 12px rgba(0, 217, 255, 0.08)",
-            transform: kernelState === "ready" ? "scale(1.02)" : "scale(1)",
-            animation: !isValidEmail(email)
-              ? "pulse 2s ease-in-out infinite"
-              : kernelState === "processing"
-              ? "pulse 3s ease-in-out infinite"
-              : "none"
-          }}
-        />
-
 
         <div
           className="relative mt-4 rounded-2xl border border-cyan-400/15 bg-[rgba(0,20,30,0.55)] backdrop-blur-md transition-all duration-500 overflow-hidden cursor-pointer"
