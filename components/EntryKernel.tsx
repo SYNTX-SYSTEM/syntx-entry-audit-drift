@@ -62,6 +62,7 @@ export default function EntryKernel() {
     const emailValid = isValidEmail(email)
     const hasSource = hasValidSource(url, file)
     
+    
     if (emailValid && hasSource && kernelState === "idle") {
       setKernelState("ready")
     } else if ((!emailValid || !hasSource) && kernelState === "ready") {
@@ -120,9 +121,10 @@ export default function EntryKernel() {
     const fd = new FormData()
     fd.append("email", email)
     fd.append("language", language)
-    if (file) fd.append("file", file)
-    else if (url) fd.append("url", url)
-
+    fd.append("url", url || "https://syntx-system.com")
+    if (file) {
+      fd.append("file", file)
+    }
     try {
       await submitEntry(fd)
       
@@ -256,47 +258,42 @@ export default function EntryKernel() {
             </option>
           ))}
         </select>
-
-        {/* CORE ACTIVATION RING */}
+        {/* CORE ACTIVATION RING - SYMBIOTISCH */}
         <div
           onClick={kernelState === "ready" ? handleKernelActivation : undefined}
-          className="relative mt-4 mb-2 h-12 rounded-full flex items-center justify-center text-xs tracking-[0.25em] font-light select-none transition-all duration-700"
+          className="relative mt-4 mb-2 h-12 rounded-full transition-all duration-700"
           style={{
             cursor: kernelState === "ready" ? "pointer" : "default",
             background:
-              kernelState === "ready"
-                ? "rgba(0, 217, 255, 0.06)"
+              !isValidEmail(email)
+                ? "rgba(255, 50, 50, 0.03)"
+                : kernelState === "ready"
+                ? "rgba(0, 217, 255, 0.04)"
                 : kernelState === "processing"
-                ? "rgba(0, 217, 255, 0.1)"
-                : "rgba(0, 217, 255, 0.02)",
-            border: "1px solid rgba(0, 217, 255, 0.18)",
+                ? "rgba(0, 217, 255, 0.08)"
+                : "rgba(0, 217, 255, 0.015)",
+            border: !isValidEmail(email)
+              ? "2px solid rgba(255, 50, 50, 0.3)"
+              : kernelState === "ready"
+              ? "2px solid rgba(0, 217, 255, 0.4)"
+              : "1px solid rgba(0, 217, 255, 0.15)",
             boxShadow:
-              kernelState === "ready"
-                ? "0 0 30px rgba(0, 217, 255, 0.25)"
+              !isValidEmail(email)
+                ? "0 0 25px rgba(255, 50, 50, 0.2), inset 0 0 15px rgba(255, 50, 50, 0.1)"
+                : kernelState === "ready"
+                ? "0 0 35px rgba(0, 217, 255, 0.3), inset 0 0 20px rgba(0, 217, 255, 0.15)"
                 : kernelState === "processing"
-                ? "0 0 60px rgba(0, 217, 255, 0.35) inset"
-                : "0 0 15px rgba(0, 217, 255, 0.1)",
-            transform:
-              kernelState === "ready"
-                ? "scale(1.015)"
-                : kernelState === "processing"
-                ? "scale(1.01)"
-                : "scale(1)"
+                ? "0 0 50px rgba(0, 217, 255, 0.4) inset"
+                : "0 0 12px rgba(0, 217, 255, 0.08)",
+            transform: kernelState === "ready" ? "scale(1.02)" : "scale(1)",
+            animation: !isValidEmail(email)
+              ? "pulse 2s ease-in-out infinite"
+              : kernelState === "processing"
+              ? "pulse 3s ease-in-out infinite"
+              : "none"
           }}
-        >
-          {kernelState === "idle" && (
-            <span className="text-cyan-400/20">CORE INACTIVE</span>
-          )}
-          {kernelState === "ready" && (
-            <span className="text-cyan-400/70">INITIATE ANALYSIS</span>
-          )}
-          {kernelState === "processing" && (
-            <span className="text-cyan-400/80 animate-pulse">SYSTEM PROCESSING</span>
-          )}
-          {kernelState === "complete" && (
-            <span className="text-cyan-400/60">ANALYSIS COMPLETE</span>
-          )}
-        </div>
+        />
+
 
         <div
           className="relative mt-4 rounded-2xl border border-cyan-400/15 bg-[rgba(0,20,30,0.55)] backdrop-blur-md transition-all duration-500 overflow-hidden cursor-pointer"
