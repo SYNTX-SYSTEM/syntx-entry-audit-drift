@@ -250,6 +250,7 @@ export default function EntryKernel() {
       <div className="space-y-3 relative z-10">
         <input
           type="email"
+          autoComplete="email"
           placeholder="• • • @ • • • . • •"
           value={email}
           onChange={e => {
