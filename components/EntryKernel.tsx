@@ -6,6 +6,8 @@ import { isValidEmail, hasValidSource } from "@/lib/validation"
 import { determineLogoState } from "@/lib/colorFilters"
 import { LANGUAGES } from "@/lib/languages"
 
+import EmailInput from "./EmailInput"
+import LanguageSelect from "./LanguageSelect"
 export default function EntryKernel() {
   const [email, setEmail] = useState("")
   const [url, setUrl] = useState("")
@@ -43,6 +45,7 @@ export default function EntryKernel() {
   }, [])
 
   useEffect(() => {
+    if (typeof window === 'undefined') return
     const v = Number(localStorage.getItem("syntx_visits") || 0)
     localStorage.setItem("syntx_visits", String(v + 1))
   }, [])
@@ -247,15 +250,12 @@ export default function EntryKernel() {
         />
       )}
       
-      <div className="space-y-3 relative z-10">
-        <input
-          type="email"
-          autoComplete="email"
-          placeholder="• • • @ • • • . • •"
+      <div className="space-y-3 relative z-10" suppressHydrationWarning>
+        <EmailInput
           value={email}
-          onChange={e => {
-            setEmail(e.target.value)
-            perturb(0.05 * e.target.value.length)
+          onChange={(val) => {
+            setEmail(val)
+            perturb(0.05 * val.length)
           }}
           onFocus={() => perturb(0.3)}
           onBlur={() => perturb(-0.02)}
@@ -283,24 +283,11 @@ export default function EntryKernel() {
           }}
           className="w-full h-11 border border-transparent rounded-md px-4 text-sm text-textPrimary placeholder:text-muted/50 placeholder:tracking-[0.3em] outline-none"
         />
-        <select
+        <LanguageSelect
           value={language}
-          onChange={e => {
-            setLanguage(e.target.value)
-            perturb(0.1)
-          }}
-          style={{
-            ...inputStyle,
-            letterSpacing: '0.15em'
-          }}
-          className="w-full h-14 border border-transparent rounded-md px-4 py-3 text-base text-textPrimary outline-none cursor-pointer font-light"
-        >
-          {LANGUAGES.map(lang => (
-            <option key={lang.code} value={lang.code} className="bg-panel py-2">
-              {lang.flag}    {lang.native}
-            </option>
-          ))}
-        </select>
+          onChange={setLanguage}
+          onPerturb={perturb}
+        />
         {/* CORE ACTIVATION RING - SYMBIOTISCH */}
         <div
           onClick={kernelState === "ready" ? handleKernelActivation : undefined}
