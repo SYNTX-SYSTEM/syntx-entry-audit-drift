@@ -1,31 +1,29 @@
 "use client"
 import { useEffect, useState, useRef } from "react"
-import { getRandomTerm, type LanguageCode } from "@/lib/offerTerms"
-import { isExampleTerm, getExamplePDF } from "@/lib/exampleTerms"
+import type { OrbitTerm } from "@/lib/orbitApi"
 import { modulate } from "@/lib/attractorSystem"
 
 interface FloatingTerm {
   id: number
   text: string
+  pdfUrl: string
   angle: number
   radius: number
   speed: number
-  isExample: boolean
 }
 
 interface OfferFieldProps {
   active: boolean
-  language: string
+  terms: OrbitTerm[]
   onExampleClick: (pdfUrl: string) => void
 }
 
-export default function OfferField({ active, language, onExampleClick }: OfferFieldProps) {
-  const [terms, setTerms] = useState<FloatingTerm[]>([])
+export default function OfferField({ active, terms, onExampleClick }: OfferFieldProps) {
+  const [floatingTerms, setFloatingTerms] = useState<FloatingTerm[]>([])
   const [centerX, setCenterX] = useState(0)
   const [centerY, setCenterY] = useState(0)
   const nextIdRef = useRef(0)
   const animationRef = useRef<number>()
-  const usedTermsRef = useRef<Set<string>>(new Set())
 
   useEffect(() => {
     const updateCenter = () => {
@@ -39,53 +37,42 @@ export default function OfferField({ active, language, onExampleClick }: OfferFi
   }, [])
 
   useEffect(() => {
-    if (!active) {
-      setTerms([])
-      usedTermsRef.current.clear()
+    if (!active || terms.length === 0) {
+      setFloatingTerms([])
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current)
       }
       return
     }
 
-    const initialTerms: FloatingTerm[] = []
-    const allTerms = Array.from({ length: 50 }, () => getRandomTerm(language as LanguageCode))
-    const uniqueTerms = [...new Set(allTerms)].slice(0, 10)
+    // Spawn terms from backend
+    const initialTerms: FloatingTerm[] = terms.map((orbitTerm, i) => ({
+      id: nextIdRef.current++,
+      text: orbitTerm.displayName,
+      pdfUrl: orbitTerm.pdfUrl,
+      angle: (i / Math.max(terms.length, 1)) * Math.PI * 2,
+      radius: 400,
+      speed: 0.0003
+    }))
     
-    for (let i = 0; i < 10; i++) {
-      const text = uniqueTerms[i] || `Term ${i}`
-      const isExample = isExampleTerm(text, language as LanguageCode)
-      
-      console.log("📦 Spawning:", text, "isExample:", isExample)
-      const newTerm: FloatingTerm = {
-        id: nextIdRef.current++,
-        text,
-        angle: (i / 10) * Math.PI * 2,
-        radius: 400,
-        speed: 0.0003,
-        isExample
-      }
-      initialTerms.push(newTerm)
-      usedTermsRef.current.add(newTerm.text)
-    }
-    
-    setTerms(initialTerms)
+    console.log("📦 Spawning from backend:", initialTerms.length, "terms")
+    setFloatingTerms(initialTerms)
 
     return () => {
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current)
       }
     }
-  }, [active, language])
+  }, [active, terms])
 
   useEffect(() => {
-    if (!active || terms.length === 0) return
+    if (!active || floatingTerms.length === 0) return
 
     const animate = () => {
-      setTerms(prev => 
-        prev.map(term => ({
-          ...term,
-          angle: term.angle + term.speed
+      setFloatingTerms(prev => 
+        prev.map(floatingTerm => ({
+          ...floatingTerm,
+          angle: floatingTerm.angle + floatingTerm.speed
         }))
       )
       animationRef.current = requestAnimationFrame(animate)
@@ -98,35 +85,29 @@ export default function OfferField({ active, language, onExampleClick }: OfferFi
         cancelAnimationFrame(animationRef.current)
       }
     }
-  }, [active, terms.length, language])
+  }, [active, floatingTerms.length])
 
-  const handleTermClick = (term: FloatingTerm) => {
-    console.log("🔥 CLICK EVENT!", term.text, "isExample:", term.isExample)
-    if (!term.isExample) return
-    
-    console.log("📄 Getting PDF for:", term.text, "lang:", language)
-    const pdf = getExamplePDF(term.text, language as LanguageCode)
-    console.log("📄 PDF result:", pdf)
-    
-    if (pdf) {
-      modulate({ exampleActive: true })
-      console.log("📄 Calling onExampleClick with:", pdf)
-      onExampleClick(pdf)
-    }
+  const handleTermClick = (floatingTerm: FloatingTerm) => {
+    console.log("🔥 CLICK EVENT!", floatingTerm.text, "PDF:", floatingTerm.pdfUrl)
+    modulate({ exampleActive: true })
+    // Add base URL for backend PDFs
+    const fullUrl = `https://audit.syntx-system.com/${floatingTerm.pdfUrl}`
+    console.log("📄 Opening PDF:", fullUrl)
+    onExampleClick(fullUrl)
   }
 
-  if (!active && terms.length === 0) return null
+  if (!active) return null
 
   return (
     <div className="fixed inset-0" style={{ zIndex: 15, pointerEvents: 'none' }}>
-      {terms.map(term => {
-        const x = centerX + Math.cos(term.angle) * term.radius
-        const y = centerY + Math.sin(term.angle) * term.radius
+      {floatingTerms.map(floatingTerm => {
+        const x = centerX + Math.cos(floatingTerm.angle) * floatingTerm.radius
+        const y = centerY + Math.sin(floatingTerm.angle) * floatingTerm.radius
 
         return (
           <div
-            key={term.id}
-            onClick={() => handleTermClick(term)}
+            key={floatingTerm.id}
+            onClick={() => handleTermClick(floatingTerm)}
             className="absolute font-light whitespace-nowrap"
             style={{
               left: `${x}px`,
@@ -146,18 +127,18 @@ export default function OfferField({ active, language, onExampleClick }: OfferFi
               padding: '8px 16px',
               borderRadius: '20px',
               backdropFilter: 'blur(8px)',
-              border: term.isExample ? '2px solid rgba(0, 240, 255, 0.5)' : '1px solid rgba(0, 240, 255, 0.2)',
+              border: '2px solid rgba(0, 240, 255, 0.5)',
               boxShadow: `
                 0 0 15px rgba(0, 240, 255, 0.3),
                 inset 0 0 20px rgba(0, 240, 255, 0.1)
               `,
               transition: 'opacity 3s ease-in-out, border 300ms ease',
               animation: 'termFadeIn 3s ease-out, termPulse 4s ease-in-out infinite',
-              pointerEvents: term.isExample ? 'auto' : 'none',
-              cursor: term.isExample ? 'pointer' : 'default'
+              pointerEvents: 'auto',
+              cursor: 'pointer'
             }}
           >
-            {term.text}
+            {floatingTerm.text}
           </div>
         )
       })}
@@ -169,7 +150,7 @@ export default function OfferField({ active, language, onExampleClick }: OfferFi
             transform: translate(-50%, -50%) scale(0.8);
           }
           to {
-            opacity: 0.5;
+            opacity: 0.5,
             transform: translate(-50%, -50%) scale(1);
           }
         }

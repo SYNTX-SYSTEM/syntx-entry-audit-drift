@@ -5,7 +5,9 @@ import ParticleNetwork from "@/components/ParticleNetwork"
 import Footer from "@/components/Footer"
 import ImpressumLayer from "@/components/ImpressumLayer"
 import OfferField from "@/components/OfferField"
+import DynamicOrbitField from "@/components/DynamicOrbitField"
 import ExampleField from "@/components/ExampleField"
+import type { OrbitTerm } from "@/lib/orbitApi"
 import Image from "next/image"
 import { getLogoColor, type LogoState } from "@/lib/colorFilters"
 import { perturb } from "@/lib/attractorSystem"
@@ -16,6 +18,7 @@ export default function Home() {
   const [showOfferField, setShowOfferField] = useState(false)
   const [language, setLanguage] = useState("EN")
   const [activePDF, setActivePDF] = useState<string | null>(null)
+  const [orbitTerms, setOrbitTerms] = useState<OrbitTerm[]>([])
 
   useEffect(() => {
     const handleLogoChange = (e: CustomEvent<{ state: LogoState }>) => {
@@ -58,7 +61,7 @@ export default function Home() {
       
       <OfferField 
         active={showOfferField} 
-        language={language}
+        terms={orbitTerms}
         onExampleClick={handleExampleClick}
       />
 
@@ -97,6 +100,8 @@ export default function Home() {
       </div>
 
       <EntryKernel />
+      
+      <DynamicOrbitField language={language} onTermsReady={setOrbitTerms} />
       
       <ExampleField pdfUrl={activePDF} />
 
