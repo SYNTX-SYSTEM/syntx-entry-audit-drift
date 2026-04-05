@@ -187,16 +187,16 @@ export default function EntryKernel() {
   const glowSize = 55 + breathWave * 30 + Math.min(breathIntensity * 45, 55)
   const glowOpacity = 0.22 + Math.min(breathIntensity * 0.35, 0.4) + breathWave * 0.14
   
-  const bgGlowOpacity = 0.14 + Math.min(breathIntensity * 0.2, 0.25) + breathWave * 0.12
+  const bgGlowOpacity = 0.12 + Math.min(breathIntensity * 0.17, 0.21) + breathWave * 0.10
 
   const isInteractive = kernelState === "ready"
 
   const containerGlowStyle = {
     boxShadow: kernelState === "processing"
-      ? `0 0 ${glowSize * 1.3}px rgba(0, 217, 255, ${glowOpacity * 1.2})`
+      ? `0 0 42px rgba(0, 217, 255, 0.14)`
       : kernelState === "ready"
-      ? `0 0 ${glowSize * 1.05}px rgba(0, 217, 255, ${glowOpacity * 1.05})`
-      : `0 0 ${glowSize}px rgba(0, 217, 255, ${glowOpacity})`,
+      ? `0 0 42px rgba(0, 217, 255, 0.14)`
+      : `0 0 42px rgba(0, 217, 255, 0.14)`,
     transition: kernelState === "processing"
       ? 'box-shadow 4500ms ease-in-out infinite'
       : 'box-shadow 1500ms ease-out',
@@ -225,7 +225,8 @@ export default function EntryKernel() {
       inset 0 1px 0 rgba(255, 255, 255, 0.1),
       inset 0 -1px 0 rgba(0, 217, 255, 0.1)
     `,
-    transition: 'all 1200ms cubic-bezier(0.4, 0, 0.2, 1)'
+    opacity: 0.85,
+    transition: 'all 220ms ease'
   }
 
   return (
@@ -250,7 +251,8 @@ export default function EntryKernel() {
         />
       )}
       
-      <div className="space-y-3 relative z-10" suppressHydrationWarning>
+      <div className="relative z-10 flex flex-col justify-center min-h-[500px]" suppressHydrationWarning>
+        <div className="mb-8">
         <EmailInput
           value={email}
           onChange={(val) => {
@@ -260,8 +262,11 @@ export default function EntryKernel() {
           onFocus={() => perturb(0.3)}
           onBlur={() => perturb(-0.02)}
           style={inputStyle}
-          className="w-full h-11 border border-transparent rounded-md px-4 text-sm text-textPrimary placeholder:text-muted/50 placeholder:tracking-[0.3em] outline-none"
+          className="w-full h-11 border border-transparent rounded-md px-4 text-sm text-textPrimary placeholder:text-muted/50 placeholder:tracking-[0.3em] outline-none focus:opacity-100"
         />
+        </div>
+
+        <div className="mb-5">
         <input
           type="text"
           placeholder="// • • • • . • •"
@@ -277,17 +282,17 @@ export default function EntryKernel() {
           onFocus={() => perturb(0.1)}
           onBlur={() => perturb(-0.02)}
           disabled={uploadState === "uploaded"}
-          style={{
-            ...inputStyle,
-            opacity: uploadState === "uploaded" ? 0.5 : 1
-          }}
-          className="w-full h-11 border border-transparent rounded-md px-4 text-sm text-textPrimary placeholder:text-muted/50 placeholder:tracking-[0.3em] outline-none"
+          style={inputStyle}
+          className="w-full h-11 border border-transparent rounded-md px-4 text-sm text-textPrimary placeholder:text-muted/50 placeholder:tracking-[0.3em] outline-none focus:opacity-100"
         />
+        </div>
+
         <LanguageSelect
           value={language}
           onChange={setLanguage}
           onPerturb={perturb}
         />
+        <div className="mb-6">
         {/* CORE ACTIVATION RING - SYMBIOTISCH */}
         <div
           onClick={kernelState === "ready" ? handleKernelActivation : undefined}
@@ -323,16 +328,16 @@ export default function EntryKernel() {
               : "none"
           }}
         />
-
+        </div>
 
         <div
-          className="relative mt-4 rounded-2xl border border-cyan-400/15 bg-[rgba(0,20,30,0.55)] backdrop-blur-md transition-all duration-500 overflow-hidden cursor-pointer"
+          className="relative mt-4 rounded-2xl border border-cyan-400/[0.16] bg-[rgba(0,20,30,0.55)] backdrop-blur-md transition-all duration-500 overflow-hidden cursor-pointer"
           style={{
             boxShadow: dragging
-              ? "0 0 60px rgba(0,240,255,0.25)"
+              ? "0 0 48px rgba(0,240,255,0.20)"
               : uploadState === "uploaded"
-              ? "0 0 40px rgba(0,240,255,0.15)"
-              : "0 0 30px rgba(0,240,255,0.08)",
+              ? "0 0 32px rgba(0,240,255,0.12)"
+              : "0 0 24px rgba(0,240,255,0.06)",
             transform: dragging ? "scale(1.02)" : "scale(1)"
           }}
           onClick={(e) => {
@@ -356,12 +361,12 @@ export default function EntryKernel() {
 
           <div className="py-6 text-center tracking-[0.08em] font-light text-sm transition-all duration-500">
             {dragging ? (
-              <span className="text-cyan-300/70">Release to Inject into Core</span>
+              <span className="text-cyan-300/[0.78]">Release to Inject into Core</span>
             ) : uploadState === "uploading" ? (
-              <span className="text-cyan-300/70">Injecting into Core...</span>
+              <span className="text-cyan-300/[0.78]">Injecting into Core...</span>
             ) : uploadState === "uploaded" ? (
               <div className="flex flex-col items-center gap-2">
-                <span className="text-cyan-400 tracking-wider font-light">
+                <span className="text-cyan-400/[0.78] tracking-wider font-light">
                   {uploadedFileName}
                 </span>
                 <span className="text-cyan-300/60 text-xs tracking-widest">
@@ -369,7 +374,7 @@ export default function EntryKernel() {
                 </span>
               </div>
             ) : (
-              <span className="text-cyan-300/70">Drop PDF or Click to Inject</span>
+              <span className="text-cyan-300/[0.78]">Drop PDF or Click to Inject</span>
             )}
           </div>
         </div>
